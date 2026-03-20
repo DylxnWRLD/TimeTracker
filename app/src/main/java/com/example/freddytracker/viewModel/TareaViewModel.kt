@@ -3,9 +3,14 @@ package com.example.freddytracker.viewModel
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.freddytracker.datos.EstadoTarea
+import com.example.freddytracker.datos.Intervalo
 import com.example.freddytracker.datos.Tarea
+import com.example.freddytracker.datos.TipoIntervalo
 
 class TareaViewModel : ViewModel() {
+
+    var intervalos = mutableStateListOf<Intervalo>()
+        private set
 
     var tasks = mutableStateListOf<Tarea>()
         private set
@@ -70,5 +75,21 @@ class TareaViewModel : ViewModel() {
             tarea.tiempoAcumulado
         }
     }
+
+    fun agregarIntervalo() {
+        intervalos.add(
+            Intervalo(
+                id = intervalos.size + 1,
+                nombre = "",
+                duracion = 5 * 60 * 1000L,
+                tipo = TipoIntervalo.ACTIVIDAD
+            )
+        )
+    }
+
+    fun actualizarIntervalo(index: Int, intervalo: Intervalo) {
+        intervalos[index] = intervalo
+    }
+
 
 }

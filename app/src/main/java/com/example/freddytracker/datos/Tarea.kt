@@ -7,7 +7,9 @@ data class Tarea(
     var endTime: String?,
     var tiempoAcumulado: Long,
     var ultimoInicio: Long,
-    var estado: EstadoTarea
+    var estado: EstadoTarea,
+
+    var intervalos : MutableList<Intervalo> = mutableListOf()
 )
 
 enum class EstadoTarea {
