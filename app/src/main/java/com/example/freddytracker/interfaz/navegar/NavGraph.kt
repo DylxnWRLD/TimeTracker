@@ -9,6 +9,7 @@ import com.example.freddytracker.interfaz.pantallas.AñadirTareaPantalla
 import com.example.freddytracker.interfaz.pantallas.PantallaPrincipal
 import com.example.freddytracker.viewModel.TareaViewModel
 import com.example.freddytracker.interfaz.pantallas.EditarTarea
+import com.example.freddytracker.interfaz.pantallas.PantallaIntervalo
 
 @Composable
 fun NavGraph() {
@@ -28,6 +29,16 @@ fun NavGraph() {
         composable("addTask") {
             AñadirTareaPantalla(navController, viewModel)
         }
+
+        composable("interval/{taskId}") { backStackEntry ->
+            val taskId = backStackEntry.arguments?.getString("taskId")?.toInt() ?: 0
+            PantallaIntervalo(
+                navController = navController,
+                viewModel = viewModel,
+                taskId = taskId
+            )
+        }
+
 
         composable("editTask/{taskId}") { backStackEntry ->
             val taskId = backStackEntry.arguments?.getString("taskId")?.toInt() ?: 0
