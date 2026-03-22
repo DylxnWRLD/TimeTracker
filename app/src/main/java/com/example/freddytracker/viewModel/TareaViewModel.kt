@@ -2,6 +2,7 @@ package com.example.freddytracker.viewModel
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import com.example.freddytracker.datos.EstadoIntervalo
 import com.example.freddytracker.datos.EstadoTarea
 import com.example.freddytracker.datos.Intervalo
 import com.example.freddytracker.datos.Tarea
@@ -82,7 +83,8 @@ class TareaViewModel : ViewModel() {
                 id = intervalos.size + 1,
                 nombre = "",
                 duracion = 5 * 60 * 1000L,
-                tipo = TipoIntervalo.ACTIVIDAD
+                tipo = TipoIntervalo.ACTIVIDAD,
+                estado = EstadoIntervalo.PENDIENTE
             )
         )
     }
