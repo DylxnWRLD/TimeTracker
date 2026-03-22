@@ -93,5 +93,13 @@ class TareaViewModel : ViewModel() {
         intervalos[index] = intervalo
     }
 
+    fun actualizarIntervalosDeTarea(taskId: Int, nuevosIntervalos: MutableList<Intervalo>) {
+        val task = tasks.find { it.id == taskId }
+        if (task != null) {
+            val tareaActualizada = task.copy(intervalos = nuevosIntervalos)
+            updateTask(tareaActualizada)
+        }
+    }
+
 
 }
