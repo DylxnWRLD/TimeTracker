@@ -120,8 +120,13 @@ fun PantallaPrincipal(
                                         EstadoTarea.PENDIENTE, EstadoTarea.PAUSADO -> {
                                             FilledIconButton(
                                                 onClick = {
-                                                    if (task.estado == EstadoTarea.PENDIENTE) viewModel.iniciarTarea(task)
-                                                    else viewModel.reanudarTarea(task)
+                                                    if (task.estado == EstadoTarea.PENDIENTE) {
+                                                        // Navegar a la pantalla de intervalos
+                                                        navController.navigate("interval/${task.id}")
+                                                    } else {
+                                                        viewModel.reanudarTarea(task)
+                                                        navController.navigate("interval/${task.id}")
+                                                    }
                                                 },
                                                 colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color(0xFF75de5d))
                                             ) {
