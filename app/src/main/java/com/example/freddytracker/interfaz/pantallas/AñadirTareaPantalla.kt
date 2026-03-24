@@ -2,6 +2,7 @@ package com.example.freddytracker.interfaz.pantallas
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,91 +52,98 @@ fun AñadirTareaPantalla(
     var name by remember { mutableStateOf("") }
     val intervalos = viewModel.intervalos
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    // Box principal para asegurar que el contenido se centre en pantallas grandes o cuando hay poco contenido
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = "Agregar Tarea",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 20.dp)
-        )
-
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Nombre Tarea") },
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 8.dp, end = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Text(
-            modifier = Modifier.padding(end = 18.dp),
-            text = "Añade los intervalos para tu tarea:",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Button(
-            onClick = {
-                viewModel.agregarIntervalo()
-            },
-            modifier = Modifier.fillMaxWidth()
-        ){
-            Text(text = "Añadir intervalo")
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Column{
-            intervalos.forEachIndexed { index, intervalo ->
-                IntervaloItem(
-                    intervalo = intervalo,
-                    onUpdate = { actualizado ->
-                        viewModel.actualizarIntervalo(index, actualizado)
-                    }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(30.dp))
-
-        Button(
-            onClick = {
-                val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
-                val formattedTime = sdf.format(Date())
-                val task = Tarea(
-                    id = viewModel.tasks.size + 1,
-                    name = name,
-                    startTime = formattedTime,
-                    endTime = null,
-                    tiempoAcumulado = 0L,
-                    ultimoInicio = 0L,
-                    estado = EstadoTarea.PENDIENTE,
-                    intervalos = intervalos.toMutableList()
-                )
-                viewModel.addTask(task)
-                navController.popBackStack()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp, start = 8.dp, end = 8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFffcf4d),
-                contentColor = Color.Black
-            )
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center // Ayuda a centrar el contenido internamente si es más pequeño que la pantalla
         ) {
             Text(
                 text = "Agregar Tarea",
-                fontSize = 19.sp
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 20.dp)
             )
+
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nombre Tarea") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = "Añade los intervalos para tu tarea:",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Start // Alineamos a la izquierda para mejor lectura
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { viewModel.agregarIntervalo() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Añadir intervalo")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Lista de intervalos
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp) // Espaciado consistente entre los items
+            ) {
+                intervalos.forEachIndexed { index, intervalo ->
+                    IntervaloItem(
+                        intervalo = intervalo,
+                        onUpdate = { actualizado ->
+                            viewModel.actualizarIntervalo(index, actualizado)
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Button(
+                onClick = {
+                    val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+                    val formattedTime = sdf.format(Date())
+                    val task = Tarea(
+                        id = viewModel.tasks.size + 1,
+                        name = name,
+                        startTime = formattedTime,
+                        endTime = null,
+                        tiempoAcumulado = 0L,
+                        ultimoInicio = 0L,
+                        estado = EstadoTarea.PENDIENTE,
+                        intervalos = intervalos.toMutableList()
+                    )
+                    viewModel.addTask(task)
+                    navController.popBackStack()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFffcf4d),
+                    contentColor = Color.Black
+                )
+            ) {
+                Text(
+                    text = "Guardar Tarea", // Cambié el texto para diferenciarlo del título
+                    fontSize = 19.sp
+                )
+            }
         }
     }
 }
