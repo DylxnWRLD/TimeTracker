@@ -77,32 +77,6 @@ class TareaViewModel(application: Application) : AndroidViewModel(application) {
         updateTask(tareaActualizada)
     }
 
-    fun pausarTarea(tarea: Tarea) {
-        if (tarea.estado != EstadoTarea.EN_PROGRESO) return
-
-        val ahora = System.currentTimeMillis()
-        val diferencia = ahora - tarea.ultimoInicio
-
-        val tareaActualizada = tarea.copy(
-            tiempoAcumulado = tarea.tiempoAcumulado + diferencia,
-            estado = EstadoTarea.PAUSADO
-        )
-
-        updateTask(tareaActualizada)
-    }
-
-    fun reanudarTarea(tarea: Tarea) {
-        if (tarea.estado != EstadoTarea.PAUSADO) return
-
-        val ahora = System.currentTimeMillis()
-
-        val tareaActualizada = tarea.copy(
-            ultimoInicio = ahora,
-            estado = EstadoTarea.EN_PROGRESO
-        )
-
-        updateTask(tareaActualizada)
-    }
     fun obtenerTiempoActual(tarea: Tarea): Long {
         return if (tarea.estado == EstadoTarea.EN_PROGRESO) {
             val ahora = System.currentTimeMillis()
@@ -136,5 +110,14 @@ class TareaViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun limpiarIntervalos() {
+        intervalos.clear()
+    }
+
+    fun cargarIntervalosParaEdicion(tarea: Tarea) {
+        intervalos.clear()
+        // Hacemos una copia para no modificar la tarea original hasta guardar
+        intervalos.addAll(tarea.intervalos.map { it.copy() })
+    }
 
 }

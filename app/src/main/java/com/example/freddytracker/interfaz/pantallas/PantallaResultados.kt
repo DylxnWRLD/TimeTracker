@@ -52,7 +52,7 @@ fun PantallaResultados(
             text = "Resultados: ${tarea.name}",
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 24.dp, top = 26.dp)
+            modifier = Modifier.padding(bottom = 24.dp, top = 30.dp)
         )
 
         // Contenedor principal para las dos columnas

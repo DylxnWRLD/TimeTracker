@@ -30,6 +30,26 @@ fun PantallaPrincipal(
 ) {
     var tareaAEliminar by remember { mutableStateOf<Tarea?>(null) }
 
+    LaunchedEffect(Unit) {
+        while (true) {
+            val sdf = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+            val horaActual = sdf.format(java.util.Date())
+
+            // Busca si alguna tarea está activa y coincide con la hora actual
+            val tareaLista = viewModel.tasks.find {
+                it.estado == EstadoTarea.ACTIVO && it.horaProgramada == horaActual
+            }
+
+            if (tareaLista != null) {
+                // Pasamos a EN_PROGRESO para que no dispare esta navegación múltiple veces en el mismo minuto
+                viewModel.updateTask(tareaLista.copy(estado = EstadoTarea.EN_PROGRESO))
+                navController.navigate("interval/${tareaLista.id}")
+            }
+
+            kotlinx.coroutines.delay(5000) // Revisar cada 5 segundos
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -100,8 +120,8 @@ fun PantallaPrincipal(
                                 horizontalAlignment = Alignment.Start,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                Text(text = "Hora de Inicio: ${task.startTime}", fontSize = 17.sp)
-                                Text(text = "Tiempo Empleado: ${formatearTiempo(tiempoActual)}", fontSize = 16.sp)
+                                Text(text = "Hora de Inicio: ${task.horaProgramada}", fontSize = 17.sp)
+//                                Text(text = "Tiempo Empleado: ${formatearTiempo(tiempoActual)}", fontSize = 16.sp)
                             }
 
                             Spacer(modifier = Modifier.height(12.dp))
@@ -111,65 +131,30 @@ fun PantallaPrincipal(
                                 horizontalArrangement = Arrangement.End,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                // Botones de control de estado con ICONOS
-                                // Verificamos si la tarea ya está cerrada definitivamente
+                                // --- REEMPLAZA LOS BOTONES PLAY/PAUSA/STOP POR ESTO ---
+
                                 val estaFinalizada = task.estado == EstadoTarea.FINALIZADO || !task.endTime.isNullOrEmpty()
 
                                 if (!estaFinalizada) {
-                                    when (task.estado) {
-                                        EstadoTarea.PENDIENTE, EstadoTarea.PAUSADO -> {
-                                            FilledIconButton(
-                                                onClick = {
-                                                    if (task.estado == EstadoTarea.PENDIENTE) {
-                                                        // Navegar a la pantalla de intervalos
-                                                        navController.navigate("interval/${task.id}")
-                                                    } else {
-                                                        viewModel.reanudarTarea(task)
-                                                        navController.navigate("interval/${task.id}")
-                                                    }
-                                                },
-                                                colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color(0xFF75de5d))
-                                            ) {
-                                                Icon(Icons.Filled.PlayArrow, contentDescription = "Iniciar", tint = Color.Black)
-                                            }
-                                        }
-                                        EstadoTarea.EN_PROGRESO -> {
-                                            FilledIconButton(
-                                                onClick = { viewModel.pausarTarea(task) },
-                                                colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color(0xFFf2a435))
-                                            ) {
-                                                Icon(Icons.Filled.Pause, contentDescription = "Pausar", tint = Color.Black)
-                                            }
-                                        }
-                                        else -> {}
-                                    }
+                                    // Texto descriptivo del estado
+                                    Text(
+                                        text = if (task.estado == EstadoTarea.ACTIVO) "Activa" else "Inactiva",
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (task.estado == EstadoTarea.ACTIVO) Color(0xFF4CAF50) else Color.Gray,
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    )
 
-                                    Spacer(modifier = Modifier.width(8.dp))
-
-                                    FilledIconButton(
-                                        onClick = {
-                                            val ahora = System.currentTimeMillis()
-                                            val sdf = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
-                                            val horaFin = sdf.format(java.util.Date(ahora))
-
-                                            val tiempoFinal = if (task.estado == EstadoTarea.EN_PROGRESO) {
-                                                task.tiempoAcumulado + (ahora - task.ultimoInicio)
-                                            } else {
-                                                task.tiempoAcumulado
-                                            }
-
-                                            viewModel.updateTask(task.copy(
-                                                estado = EstadoTarea.FINALIZADO,
-                                                endTime = horaFin,
-                                                tiempoAcumulado = tiempoFinal
-                                            ))
+                                    // Switch (Interruptor)
+                                    Switch(
+                                        checked = task.estado == EstadoTarea.ACTIVO,
+                                        onCheckedChange = { activado ->
+                                            val nuevoEstado = if (activado) EstadoTarea.ACTIVO else EstadoTarea.INACTIVO
+                                            viewModel.updateTask(task.copy(estado = nuevoEstado))
                                         },
-                                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color.Gray)
-                                    ) {
-                                        Icon(Icons.Filled.Stop, contentDescription = "Finalizar", tint = Color.White)
-                                    }
+                                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF4CAF50))
+                                    )
 
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(modifier = Modifier.width(16.dp))
                                 }
 
                                 FilledIconButton(

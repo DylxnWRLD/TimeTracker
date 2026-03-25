@@ -21,6 +21,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +51,13 @@ fun AñadirTareaPantalla(
     viewModel: TareaViewModel
 ) {
     var name by remember { mutableStateOf("") }
+    var horaProgramada by remember { mutableStateOf("") } // NUEVO ESTADO
     val intervalos = viewModel.intervalos
+
+    // Limpiamos la lista temporal al entrar a esta pantalla
+    LaunchedEffect(Unit) {
+        viewModel.limpiarIntervalos()
+    }
 
     // Box principal para asegurar que el contenido se centre en pantallas grandes o cuando hay poco contenido
     Box(
@@ -79,6 +86,14 @@ fun AñadirTareaPantalla(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            OutlinedTextField(
+                value = horaProgramada,
+                onValueChange = { horaProgramada = it },
+                label = { Text("Hora Programada (HH:mm)") },
+                placeholder = { Text("Ej: 14:30") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
@@ -93,9 +108,10 @@ fun AñadirTareaPantalla(
 
             Button(
                 onClick = { viewModel.agregarIntervalo() },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFffcf4d), contentColor = Color.Black)
             ) {
-                Text(text = "Añadir intervalo")
+                Text(text = "Añadir intervalo", fontSize = 19.sp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -125,9 +141,10 @@ fun AñadirTareaPantalla(
                         name = name,
                         startTime = formattedTime,
                         endTime = null,
+                        horaProgramada = horaProgramada, // PASAMOS LA HORA
                         tiempoAcumulado = 0L,
                         ultimoInicio = 0L,
-                        estado = EstadoTarea.PENDIENTE,
+                        estado = EstadoTarea.ACTIVO, // SE GUARDA ACTIVA POR DEFECTO
                         intervalos = intervalos.toMutableList()
                     )
                     viewModel.addTask(task)

@@ -5,6 +5,7 @@ data class Tarea(
     var name: String,
     var startTime: String,
     var endTime: String?,
+    var horaProgramada: String,
     var tiempoAcumulado: Long,
     var ultimoInicio: Long,
     var estado: EstadoTarea,
@@ -13,8 +14,8 @@ data class Tarea(
 )
 
 enum class EstadoTarea {
-    PENDIENTE,
+    ACTIVO,
+    INACTIVO,
     EN_PROGRESO,
-    PAUSADO,
     FINALIZADO
 }
