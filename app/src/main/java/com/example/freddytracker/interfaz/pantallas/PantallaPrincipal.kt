@@ -131,32 +131,27 @@ fun PantallaPrincipal(
                                 horizontalArrangement = Arrangement.End,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                // --- REEMPLAZA LOS BOTONES PLAY/PAUSA/STOP POR ESTO ---
+                                // Texto descriptivo del estado SIEMPRE VISIBLE
+                                Text(
+                                    text = if (task.estado == EstadoTarea.ACTIVO) "Activa" else "Inactiva",
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (task.estado == EstadoTarea.ACTIVO) Color(0xFF4CAF50) else Color.Gray,
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
 
-                                val estaFinalizada = task.estado == EstadoTarea.FINALIZADO || !task.endTime.isNullOrEmpty()
+                                // Switch (Interruptor) SIEMPRE VISIBLE
+                                Switch(
+                                    checked = task.estado == EstadoTarea.ACTIVO,
+                                    onCheckedChange = { activado ->
+                                        val nuevoEstado = if (activado) EstadoTarea.ACTIVO else EstadoTarea.INACTIVO
+                                        viewModel.updateTask(task.copy(estado = nuevoEstado))
+                                    },
+                                    colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF4CAF50))
+                                )
 
-                                if (!estaFinalizada) {
-                                    // Texto descriptivo del estado
-                                    Text(
-                                        text = if (task.estado == EstadoTarea.ACTIVO) "Activa" else "Inactiva",
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (task.estado == EstadoTarea.ACTIVO) Color(0xFF4CAF50) else Color.Gray,
-                                        modifier = Modifier.padding(end = 8.dp)
-                                    )
+                                Spacer(modifier = Modifier.width(16.dp))
 
-                                    // Switch (Interruptor)
-                                    Switch(
-                                        checked = task.estado == EstadoTarea.ACTIVO,
-                                        onCheckedChange = { activado ->
-                                            val nuevoEstado = if (activado) EstadoTarea.ACTIVO else EstadoTarea.INACTIVO
-                                            viewModel.updateTask(task.copy(estado = nuevoEstado))
-                                        },
-                                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF4CAF50))
-                                    )
-
-                                    Spacer(modifier = Modifier.width(16.dp))
-                                }
-
+                                // Botón Editar
                                 FilledIconButton(
                                     onClick = { navController.navigate("editTask/${task.id}") },
                                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color(0xFFffcf4d))
@@ -166,6 +161,7 @@ fun PantallaPrincipal(
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
+                                // Botón Eliminar
                                 FilledIconButton(
                                     onClick = { tareaAEliminar = task },
                                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color.Red)
