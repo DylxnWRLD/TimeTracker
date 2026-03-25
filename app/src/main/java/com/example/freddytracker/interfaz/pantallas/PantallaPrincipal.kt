@@ -35,18 +35,16 @@ fun PantallaPrincipal(
             val sdf = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
             val horaActual = sdf.format(java.util.Date())
 
-            // Busca si alguna tarea está activa y coincide con la hora actual
             val tareaLista = viewModel.tasks.find {
                 it.estado == EstadoTarea.ACTIVO && it.horaProgramada == horaActual
             }
 
             if (tareaLista != null) {
-                // Pasamos a EN_PROGRESO para que no dispare esta navegación múltiple veces en el mismo minuto
                 viewModel.updateTask(tareaLista.copy(estado = EstadoTarea.EN_PROGRESO))
                 navController.navigate("interval/${tareaLista.id}")
             }
 
-            kotlinx.coroutines.delay(5000) // Revisar cada 5 segundos
+            kotlinx.coroutines.delay(5000)
         }
     }
 
@@ -121,7 +119,6 @@ fun PantallaPrincipal(
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(text = "Hora de Inicio: ${task.horaProgramada}", fontSize = 17.sp)
-//                                Text(text = "Tiempo Empleado: ${formatearTiempo(tiempoActual)}", fontSize = 16.sp)
                             }
 
                             Spacer(modifier = Modifier.height(12.dp))
@@ -131,7 +128,7 @@ fun PantallaPrincipal(
                                 horizontalArrangement = Arrangement.End,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                // Texto descriptivo del estado SIEMPRE VISIBLE
+
                                 Text(
                                     text = if (task.estado == EstadoTarea.ACTIVO) "Activa" else "Inactiva",
                                     fontWeight = FontWeight.Bold,
@@ -139,7 +136,6 @@ fun PantallaPrincipal(
                                     modifier = Modifier.padding(end = 8.dp)
                                 )
 
-                                // Switch (Interruptor) SIEMPRE VISIBLE
                                 Switch(
                                     checked = task.estado == EstadoTarea.ACTIVO,
                                     onCheckedChange = { activado ->

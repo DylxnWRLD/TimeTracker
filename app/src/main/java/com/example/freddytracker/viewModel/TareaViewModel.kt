@@ -8,7 +8,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
 
-// NUEVO: Hereda de AndroidViewModel para tener acceso a Application
 class TareaViewModel(application: Application) : AndroidViewModel(application) {
 
     var intervalos = mutableStateListOf<Intervalo>()
@@ -17,12 +16,12 @@ class TareaViewModel(application: Application) : AndroidViewModel(application) {
     var tasks = mutableStateListOf<Tarea>()
         private set
 
-    // NUEVO: Instancias para el guardado JSON
+
     private val gson = Gson()
     private val archivoJson = File(application.filesDir, "tareas_guardadas.json")
 
     init {
-        cargarTareas() // Carga al iniciar la app
+        cargarTareas()
     }
 
     private fun guardarTareas() {
@@ -50,19 +49,19 @@ class TareaViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addTask(task: Tarea) {
         tasks.add(task)
-        guardarTareas() // Guardar cambios
+        guardarTareas()
     }
 
     fun deleteTask(task: Tarea) {
         tasks.remove(task)
-        guardarTareas() // Guardar cambios
+        guardarTareas()
     }
 
     fun updateTask(updatedTask: Tarea) {
         val index = tasks.indexOfFirst { it.id == updatedTask.id }
         if (index != -1) {
             tasks[index] = updatedTask
-            guardarTareas() // Guardar cambios
+            guardarTareas()
         }
     }
 

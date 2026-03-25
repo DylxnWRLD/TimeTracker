@@ -1,24 +1,33 @@
 package com.example.freddytracker.interfaz.pantallas
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.freddytracker.datos.Intervalo
 import com.example.freddytracker.viewModel.TareaViewModel
-import java.util.concurrent.TimeUnit
 
 @Composable
 fun PantallaResultados(
@@ -28,16 +37,13 @@ fun PantallaResultados(
 ) {
     val tarea = viewModel.tasks.find { it.id == taskId } ?: return
 
-    // 1. Filtrar los intervalos por tipo
     val intervalosActividad = tarea.intervalos.filter { it.tipo.name == "ACTIVIDAD" }
     val intervalosDescanso = tarea.intervalos.filter { it.tipo.name == "DESCANSO" }
 
-    // 2. Calcular los totales y el ahorro para Actividad
     val totalActividadEstablecido = intervalosActividad.sumOf { it.duracion }
     val totalActividadReal = intervalosActividad.sumOf { it.duracionReal }
     val ahorroActividad = totalActividadEstablecido - totalActividadReal
 
-    // 3. Calcular los totales y el ahorro para Descanso
     val totalDescansoEstablecido = intervalosDescanso.sumOf { it.duracion }
     val totalDescansoReal = intervalosDescanso.sumOf { it.duracionReal }
     val ahorroDescanso = totalDescansoEstablecido - totalDescansoReal
@@ -55,27 +61,24 @@ fun PantallaResultados(
             modifier = Modifier.padding(bottom = 24.dp, top = 30.dp)
         )
 
-        // Contenedor principal para las dos columnas
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f) // Esto permite que el botón de finalizar se quede abajo
+                .weight(1f)
         ) {
-            // COLUMNA IZQUIERDA: ACTIVIDAD
+
             Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
                 EncabezadoColumna(
                     titulo = "Actividad",
                     colorEncabezado = Color(0xFF4CAF50) // Verde
                 )
 
-                // Lista de actividades
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(intervalosActividad) { intervalo ->
                         ItemIntervaloSimple(intervalo)
                     }
                 }
 
-                // Resumen de Actividad (El cuadro al final)
                 ResumenColumna(
                     tiempoTotalEstablecido = totalActividadEstablecido,
                     tiempoTotalReal = totalActividadReal,
@@ -84,21 +87,18 @@ fun PantallaResultados(
                 )
             }
 
-            // COLUMNA DERECHA: DESCANSO
             Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
                 EncabezadoColumna(
                     titulo = "Descanso",
                     colorEncabezado = Color(0xFF2196F3) // Azul
                 )
 
-                // Lista de descansos
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(intervalosDescanso) { intervalo ->
                         ItemIntervaloSimple(intervalo)
                     }
                 }
 
-                // Resumen de Descanso (El cuadro al final)
                 ResumenColumna(
                     tiempoTotalEstablecido = totalDescansoEstablecido,
                     tiempoTotalReal = totalDescansoReal,
@@ -110,7 +110,6 @@ fun PantallaResultados(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón Finalizar (ocupa todo el ancho al final)
         Button(
             onClick = {
                 navController.navigate("home") {
@@ -138,9 +137,6 @@ fun EncabezadoColumna(titulo: String, colorEncabezado: Color) {
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Aquí puedes agregar un icono si tienes los recursos:
-            // Icon(imageVector = ..., contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
-            // Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = titulo,
                 color = Color.White,
@@ -220,9 +216,6 @@ fun TextoResumen(
     }
 }
 
-/**
- * Función auxiliar para formatear ms a formato verbal: Xh Ym Zs
- */
 fun formatearMsVerbal(millis: Long): String {
     if (millis <= 0) return "0s"
 

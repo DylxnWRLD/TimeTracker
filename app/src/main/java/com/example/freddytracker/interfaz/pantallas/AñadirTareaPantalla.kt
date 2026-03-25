@@ -1,6 +1,5 @@
 package com.example.freddytracker.interfaz.pantallas
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,11 +29,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.freddytracker.datos.EstadoTarea
 import com.example.freddytracker.datos.Intervalo
 import com.example.freddytracker.datos.Tarea
@@ -51,15 +48,13 @@ fun AñadirTareaPantalla(
     viewModel: TareaViewModel
 ) {
     var name by remember { mutableStateOf("") }
-    var horaProgramada by remember { mutableStateOf("") } // NUEVO ESTADO
+    var horaProgramada by remember { mutableStateOf("") }
     val intervalos = viewModel.intervalos
 
-    // Limpiamos la lista temporal al entrar a esta pantalla
     LaunchedEffect(Unit) {
         viewModel.limpiarIntervalos()
     }
 
-    // Box principal para asegurar que el contenido se centre en pantallas grandes o cuando hay poco contenido
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -70,7 +65,7 @@ fun AñadirTareaPantalla(
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center // Ayuda a centrar el contenido internamente si es más pequeño que la pantalla
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "Agregar Tarea",
@@ -101,7 +96,7 @@ fun AñadirTareaPantalla(
                 text = "Añade los intervalos para tu tarea:",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Start // Alineamos a la izquierda para mejor lectura
+                textAlign = androidx.compose.ui.text.style.TextAlign.Start
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -118,7 +113,7 @@ fun AñadirTareaPantalla(
 
             // Lista de intervalos
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp) // Espaciado consistente entre los items
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 intervalos.forEachIndexed { index, intervalo ->
                     IntervaloItem(
@@ -141,10 +136,10 @@ fun AñadirTareaPantalla(
                         name = name,
                         startTime = formattedTime,
                         endTime = null,
-                        horaProgramada = horaProgramada, // PASAMOS LA HORA
+                        horaProgramada = horaProgramada,
                         tiempoAcumulado = 0L,
                         ultimoInicio = 0L,
-                        estado = EstadoTarea.ACTIVO, // SE GUARDA ACTIVA POR DEFECTO
+                        estado = EstadoTarea.ACTIVO,
                         intervalos = intervalos.toMutableList()
                     )
                     viewModel.addTask(task)
@@ -157,7 +152,7 @@ fun AñadirTareaPantalla(
                 )
             ) {
                 Text(
-                    text = "Guardar Tarea", // Cambié el texto para diferenciarlo del título
+                    text = "Guardar Tarea",
                     fontSize = 19.sp
                 )
             }

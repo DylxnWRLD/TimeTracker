@@ -2,17 +2,15 @@ package com.example.freddytracker.interfaz.navegar
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.example.freddytracker.interfaz.pantallas.AñadirTareaPantalla
-import com.example.freddytracker.interfaz.pantallas.PantallaPrincipal
-import com.example.freddytracker.viewModel.TareaViewModel
 import com.example.freddytracker.interfaz.pantallas.EditarTarea
 import com.example.freddytracker.interfaz.pantallas.PantallaIntervalo
+import com.example.freddytracker.interfaz.pantallas.PantallaPrincipal
 import com.example.freddytracker.interfaz.pantallas.PantallaResultados
+import com.example.freddytracker.viewModel.TareaViewModel
 
 @Composable
 fun NavGraph() {
