@@ -1,14 +1,15 @@
 package com.example.freddytracker.viewModel
 
+import android.app.Application
 import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.ViewModel
-import com.example.freddytracker.datos.EstadoIntervalo
-import com.example.freddytracker.datos.EstadoTarea
-import com.example.freddytracker.datos.Intervalo
-import com.example.freddytracker.datos.Tarea
-import com.example.freddytracker.datos.TipoIntervalo
+import androidx.lifecycle.AndroidViewModel
+import com.example.freddytracker.datos.*
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.io.File
 
-class TareaViewModel : ViewModel() {
+// NUEVO: Hereda de AndroidViewModel para tener acceso a Application
+class TareaViewModel(application: Application) : AndroidViewModel(application) {
 
     var intervalos = mutableStateListOf<Intervalo>()
         private set
@@ -16,18 +17,52 @@ class TareaViewModel : ViewModel() {
     var tasks = mutableStateListOf<Tarea>()
         private set
 
+    // NUEVO: Instancias para el guardado JSON
+    private val gson = Gson()
+    private val archivoJson = File(application.filesDir, "tareas_guardadas.json")
+
+    init {
+        cargarTareas() // Carga al iniciar la app
+    }
+
+    private fun guardarTareas() {
+        try {
+            val json = gson.toJson(tasks)
+            archivoJson.writeText(json)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun cargarTareas() {
+        if (archivoJson.exists()) {
+            try {
+                val json = archivoJson.readText()
+                val tipoLista = object : TypeToken<List<Tarea>>() {}.type
+                val tareasCargadas: List<Tarea> = gson.fromJson(json, tipoLista)
+                tasks.clear()
+                tasks.addAll(tareasCargadas)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun addTask(task: Tarea) {
         tasks.add(task)
+        guardarTareas() // Guardar cambios
     }
 
     fun deleteTask(task: Tarea) {
         tasks.remove(task)
+        guardarTareas() // Guardar cambios
     }
 
     fun updateTask(updatedTask: Tarea) {
         val index = tasks.indexOfFirst { it.id == updatedTask.id }
         if (index != -1) {
             tasks[index] = updatedTask
+            guardarTareas() // Guardar cambios
         }
     }
 

@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.freddytracker.datos.EstadoIntervalo
 import com.example.freddytracker.datos.EstadoTarea
@@ -30,34 +29,37 @@ fun PantallaIntervalo(
     val task = viewModel.tasks.find { it.id == taskId } ?: return
     val intervalos = task.intervalos.toMutableStateList()
 
-    // Estado para controlar el índice actual del intervalo
+    // Estados para controlar los tiempos
     var currentIndex by remember { mutableStateOf(0) }
-    // Estado para el tiempo restante del intervalo actual
     var tiempoRestante by remember { mutableStateOf(0L) }
-    // Estado para controlar si el cronómetro está activo
+    var tiempoTranscurrido by remember { mutableStateOf(0L) } // NUEVO: Medidor de tiempo real
     var isActive by remember { mutableStateOf(true) }
 
-    // Variable para almacenar la tarea actualizada (para cuando termine)
-    var tareaActualizada by remember { mutableStateOf(task) }
-
-    // Inicializar el primer intervalo si existe
+    // Inicializar el primer intervalo
     LaunchedEffect(currentIndex) {
         if (currentIndex < intervalos.size) {
             val intervaloActual = intervalos[currentIndex]
-            // Actualizar estado del intervalo a EN_PROGRESO
             intervalos[currentIndex] = intervaloActual.copy(estado = EstadoIntervalo.EN_PROGRESO)
             tiempoRestante = intervaloActual.duracion
+            tiempoTranscurrido = 0L // Reiniciar contador real en cada intervalo
 
             // Cronómetro
             while (tiempoRestante > 0 && isActive) {
                 delay(1000)
                 tiempoRestante -= 1000
+                tiempoTranscurrido += 1000 // Aumentamos el tiempo real en cada segundo
             }
 
-            // Cuando termina el intervalo
+            // Cuando termina el intervalo o se presiona "Saltar"
             if (tiempoRestante <= 0 && isActive) {
-                // Marcar intervalo como FINALIZADO
-                intervalos[currentIndex] = intervaloActual.copy(estado = EstadoIntervalo.FINALIZADO)
+                // Marcar intervalo como FINALIZADO y guardar el tiempo que realmente tardó
+                intervalos[currentIndex] = intervaloActual.copy(
+                    estado = EstadoIntervalo.FINALIZADO,
+                    duracionReal = tiempoTranscurrido
+                )
+
+                // Actualizamos la tarea en el ViewModel con los intervalos modificados
+                viewModel.actualizarIntervalosDeTarea(taskId, intervalos.toMutableList())
 
                 // Pasar al siguiente intervalo
                 if (currentIndex + 1 < intervalos.size) {
@@ -73,8 +75,7 @@ fun PantallaIntervalo(
         }
     }
 
-    // UI de la pantalla
-    // Reemplaza el Column principal con este código
+    // UI de la pantalla original
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -89,7 +90,6 @@ fun PantallaIntervalo(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // El resto del contenido permanece igual
         if (currentIndex < intervalos.size) {
             val intervaloActual = intervalos[currentIndex]
 
@@ -97,7 +97,7 @@ fun PantallaIntervalo(
                 text = "Tarea: ${task.name}",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White, // Cambiar color del texto a blanco para mejor contraste
+                color = Color.White,
                 modifier = Modifier.padding(bottom = 32.dp)
             )
 
@@ -106,7 +106,7 @@ fun PantallaIntervalo(
                     if (intervaloActual.tipo.name == "ACTIVIDAD") "Actividad" else "Descanso"
                 },
                 fontSize = 24.sp,
-                color = Color.White, // Texto blanco
+                color = Color.White,
                 modifier = Modifier.padding(bottom = 48.dp)
             )
 
@@ -115,7 +115,7 @@ fun PantallaIntervalo(
                 text = formatearTiempoIntervalo(tiempoRestante),
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White, // Texto blanco
+                color = Color.White,
                 modifier = Modifier.padding(bottom = 48.dp)
             )
 
@@ -123,17 +123,19 @@ fun PantallaIntervalo(
             Text(
                 text = if (intervaloActual.tipo.name == "ACTIVIDAD") "Tiempo de actividad" else "Tiempo de descanso",
                 fontSize = 18.sp,
-                color = Color.White // Texto blanco
+                color = Color.White
             )
 
-            // Barra de progreso con color contrastante
+            // Barra de progreso con validación para evitar dividir entre cero
             LinearProgressIndicator(
-                progress = (intervaloActual.duracion - tiempoRestante).toFloat() / intervaloActual.duracion.toFloat(),
+                progress = if (intervaloActual.duracion > 0) {
+                    (intervaloActual.duracion - tiempoRestante).toFloat() / intervaloActual.duracion.toFloat()
+                } else 0f,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 32.dp),
-                color = Color.White, // Barra blanca para contraste
-                trackColor = Color.White.copy(alpha = 0.3f) // Fondo semitransparente
+                color = Color.White,
+                trackColor = Color.White.copy(alpha = 0.3f)
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -141,12 +143,12 @@ fun PantallaIntervalo(
             // Botón para saltar el intervalo actual
             OutlinedButton(
                 onClick = {
-                    tiempoRestante = 0L
+                    tiempoRestante = 0L // Al pasarlo a 0, el LaunchedEffect se encarga de guardar el tiempoTranscurrido
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = Color.White,
-                    containerColor = Color.White.copy(alpha = 0.2f) // Fondo semitransparente
+                    containerColor = Color.White.copy(alpha = 0.2f)
                 ),
                 border = ButtonDefaults.outlinedButtonBorder.copy(
                     brush = androidx.compose.ui.graphics.SolidColor(Color.White)
@@ -159,12 +161,13 @@ fun PantallaIntervalo(
                 text = "¡Tarea completada!",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White // Texto blanco
+                color = Color.White
             )
         }
     }
 }
 
+// Modificación para navegar a la nueva pantalla de resultados
 private fun finalizarTarea(
     task: Tarea,
     viewModel: TareaViewModel,
@@ -187,7 +190,11 @@ private fun finalizarTarea(
     )
 
     viewModel.updateTask(tareaFinalizada)
-    navController.popBackStack()
+
+    // Navegar a resultados en vez de simplemente retroceder
+    navController.navigate("resultados/${task.id}") {
+        popUpTo("home") { inclusive = false }
+    }
 }
 
 private fun formatearTiempoIntervalo(millis: Long): String {

@@ -2,14 +2,17 @@ package com.example.freddytracker.interfaz.navegar
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.freddytracker.interfaz.pantallas.AñadirTareaPantalla
 import com.example.freddytracker.interfaz.pantallas.PantallaPrincipal
 import com.example.freddytracker.viewModel.TareaViewModel
 import com.example.freddytracker.interfaz.pantallas.EditarTarea
 import com.example.freddytracker.interfaz.pantallas.PantallaIntervalo
+import com.example.freddytracker.interfaz.pantallas.PantallaResultados
 
 @Composable
 fun NavGraph() {
@@ -39,7 +42,6 @@ fun NavGraph() {
             )
         }
 
-
         composable("editTask/{taskId}") { backStackEntry ->
             val taskId = backStackEntry.arguments?.getString("taskId")?.toInt() ?: 0
             EditarTarea(
@@ -49,6 +51,13 @@ fun NavGraph() {
             )
         }
 
+        composable("resultados/{taskId}") { backStackEntry ->
+            val taskId = backStackEntry.arguments?.getString("taskId")?.toInt() ?: 0
+            PantallaResultados(
+                navController = navController,
+                viewModel = viewModel,
+                taskId = taskId
+            )
+        }
     }
-
 }

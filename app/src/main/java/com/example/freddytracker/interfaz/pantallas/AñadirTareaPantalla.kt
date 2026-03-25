@@ -276,15 +276,3 @@ fun ComboTipoIntervalo(
         }
     }
 }
-
-@SuppressLint("ViewModelConstructorInComposable")
-@Preview(showBackground = true)
-@Composable
-fun PreviewScreen() {
-    val navController = rememberNavController()
-    val viewModel = TareaViewModel()
-    AñadirTareaPantalla(
-        navController = navController,
-        viewModel = viewModel
-    )
-}

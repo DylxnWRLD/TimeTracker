@@ -5,7 +5,8 @@ data class Intervalo(
     var nombre: String,
     var duracion: Long,
     var tipo: TipoIntervalo,
-    var estado: EstadoIntervalo
+    var estado: EstadoIntervalo,
+    var duracionReal: Long = 0L
 )
 
 enum class TipoIntervalo {
